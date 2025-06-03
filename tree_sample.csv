@@ -1,0 +1,11 @@
+species,diameter,height,record_date,project_id,notes
+Oak,25,15,2025-04-01,,Healthy tree
+Pine,30,20,2025-04-02,,Needs pruning
+Maple,15,10,2025-04-03,,Newly planted
+Birch,20,12,2025-04-04,,Leaning slightly
+Spruce,18,14,2025-04-05,,Good condition
+Cedar,22,16,2025-04-06,,Shows signs of disease
+Willow,28,18,2025-04-07,,Near water source
+Cherry,12,8,2025-04-08,,Blossoming
+Aspen,19,13,2025-04-09,,Recently pruned
+Fir,24,17,2025-04-10,,Strong growth

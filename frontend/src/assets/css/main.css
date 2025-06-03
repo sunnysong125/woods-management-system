@@ -1,0 +1,452 @@
+/* 全局樣式 */
+
+:root {
+  --primary-color: #2E8B57;
+  --secondary-color: #1a4223;
+  --text-light: #ffffff;
+  --text-gray: #aaaaaa;
+  --overlay-color: rgba(0, 0, 0, 0.5);
+  --box-bg-color: rgba(30, 30, 30, 0.35);
+}
+
+/* 透明卡片樣式 */
+.content-box {
+  background-color: rgba(30, 30, 30, 0.35);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 標題樣式 */
+h1, h2, h3, h4, h5, h6 {
+  color: #ffffff !important;
+}
+
+h1 {
+  font-weight: bold !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5) !important;
+  margin-bottom: 20px !important;
+}
+
+h2 {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+h3 {
+  color: #ffffff;
+}
+
+/* 按鈕樣式 */
+.el-button--primary {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+.el-button--primary:hover {
+  background-color: var(--secondary-color) !important;
+  border-color: var(--secondary-color) !important;
+}
+
+/* 按鈕樣式優化 */
+.el-button:not(.el-button--primary) {
+  background-color: rgba(70, 70, 70, 0.8) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.el-button:not(.el-button--primary):hover {
+  background-color: rgba(90, 90, 90, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* 表格樣式 */
+.transparent-table {
+  --el-table-header-bg-color: rgba(46, 139, 87, 0.2) !important;
+  --el-table-tr-bg-color: rgba(0, 0, 0, 0.2) !important;
+  --el-table-border-color: rgba(255, 255, 255, 0.1) !important;
+  --el-table-text-color: var(--text-light) !important;
+}
+
+/* 全局样式 */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: #f5f7fa;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  color: #303133;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.box-card {
+  margin-bottom: 20px;
+}
+
+/* 按钮样式 */
+.btn-group {
+  display: flex;
+  gap: 10px;
+}
+
+/* 表单样式 */
+.form-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* 表格样式 */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* 页面过渡效果 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Element Plus在深色背景下的樣式修正 */
+.el-form-item__label {
+  color: #ffffff !important;
+  font-weight: bold !important;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5) !important;
+}
+
+.el-select-dropdown__item {
+  color: #606266;
+}
+
+.el-table {
+  --el-table-header-bg-color: rgba(46, 139, 87, 0.2) !important;
+  --el-table-tr-bg-color: rgba(0, 0, 0, 0.2) !important;
+  --el-table-border-color: rgba(255, 255, 255, 0.1) !important;
+  --el-table-text-color: var(--text-light) !important;
+  background-color: transparent !important;
+}
+
+.el-table th.el-table__cell {
+  background-color: rgba(46, 139, 87, 0.2) !important;
+}
+
+.el-table tr {
+  background-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+.el-table--enable-row-hover .el-table__body tr:hover > td.el-table__cell {
+  background-color: rgba(46, 139, 87, 0.3) !important;
+}
+
+.el-table .cell {
+  color: var(--text-light) !important;
+}
+
+.el-message-box {
+  background-color: #333 !important;
+  border-color: #444 !important;
+}
+
+.el-message-box__title {
+  color: var(--text-light) !important;
+}
+
+.el-message-box__message {
+  color: var(--text-light) !important;
+}
+
+.el-message-box__headerbtn .el-message-box__close {
+  color: var(--text-light) !important;
+}
+
+.el-pagination {
+  --el-pagination-button-color: var(--text-light) !important;
+  --el-pagination-text-color: var(--text-light) !important;
+}
+
+.el-pagination .el-select .el-input .el-input__inner {
+  color: #000 !important;
+}
+
+/* 確保所有表單元素和提示文字使用白色 */
+.el-input__inner,
+.el-textarea__inner,
+.el-select-dropdown__item,
+.el-form-item__error,
+.el-form-item__description,
+.el-form-item__label,
+.el-upload__tip,
+.el-upload .el-icon--upload,
+.el-upload-dragger .el-upload__text,
+.el-dropdown-menu__item,
+.el-menu-item,
+.el-submenu__title,
+.el-table th.el-table__cell,
+.el-table .cell,
+.el-pagination button,
+.el-pagination span:not([class*=suffix]),
+.el-select .el-input .el-select__caret,
+.el-select .el-tag,
+.el-select-dropdown__empty,
+.el-checkbox__label,
+.el-radio__label,
+.el-switch__label,
+.el-form-item__content,
+.el-tree-node__label,
+.el-date-table th,
+.el-date-table td,
+.el-time-panel__content,
+.el-time-spinner__item,
+.el-picker-panel__footer,
+.el-picker-panel__icon-btn,
+.el-cascader-node__label,
+.el-tabs__item {
+  color: #ffffff !important;
+}
+
+/* 還有一些特定的元素可能需要額外處理 */
+.el-upload__text em,
+.el-upload__tip,
+::placeholder,
+.el-input__placeholder {
+  color: #eeeeee !important;
+}
+
+/* 特別處理搜索框和下拉選單，這些可能需要暗色文字以便在亮色背景下可讀 */
+.el-select-dropdown__item,
+.el-cascader-menu__item {
+  color: #606266 !important;
+}
+
+/* 調整卡片中的文本顏色 */
+.content-box p,
+.content-box span,
+.content-box div,
+.content-box li {
+  color: #ffffff !important;
+}
+
+/* 調整資料提示 */
+.el-table__empty-text,
+.el-empty__description p,
+.el-table__empty-block .el-empty__description,
+.el-upload-dragger {
+  color: #ffffff !important;
+}
+
+/* 修正選擇器和下拉選單 */
+.el-select-dropdown {
+  background-color: rgba(45, 45, 45, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.el-select-dropdown__item {
+  color: #ffffff !important;
+}
+
+.el-select-dropdown__item.hover, 
+.el-select-dropdown__item:hover {
+  background-color: rgba(46, 139, 87, 0.3) !important;
+}
+
+/* 修正輸入框樣式 */
+.el-input__wrapper {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2) inset !important;
+}
+
+.el-input__inner::placeholder {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* 修正上傳區域樣式 */
+.el-upload-dragger {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* 覆蓋Element Plus默認樣式 */
+.el-card__header,
+.el-dialog__title,
+.el-collapse-item__header,
+.el-steps__title,
+.el-form-item__label,
+.el-menu-item,
+.el-submenu__title,
+.el-tabs__item {
+  color: #ffffff !important;
+}
+
+/* 針對不同頁面設置不同透明度的內容區塊 */
+.trees-view .content-box {
+  background-color: rgba(30, 30, 30, 0.4) !important;
+}
+
+.query .content-box:first-of-type {
+  background-color: rgba(30, 30, 30, 0.45) !important;
+}
+
+.query .content-box.query-results {
+  background-color: rgba(30, 30, 30, 0.3) !important;
+}
+
+/* 表格相關樣式強制覆蓋 */
+.el-table {
+  background-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+.el-table__header-wrapper th.el-table__cell {
+  background-color: rgba(46, 139, 87, 0.3) !important;
+}
+
+.el-table__body tr.el-table__row {
+  background-color: rgba(0, 0, 0, 0.25) !important;
+}
+
+.el-table__body tr.el-table__row:hover > td.el-table__cell {
+  background-color: rgba(46, 139, 87, 0.3) !important;
+}
+
+/* 強制覆蓋所有背景色 */
+.transparent-table .el-table,
+.transparent-table .el-table__inner-wrapper,
+.transparent-table .el-table tr,
+.transparent-table .el-table th {
+  background-color: transparent !important;
+}
+
+/* 樹木列表組件樣式覆蓋 */
+#app .trees-view .el-table__header-wrapper th.el-table__cell {
+  background-color: rgba(46, 139, 87, 0.35) !important;
+}
+
+#app .trees-view .el-table__body tr.el-table__row {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+}
+
+#app .trees-view .el-table__body tr.el-table__row:hover > td.el-table__cell {
+  background-color: rgba(46, 139, 87, 0.4) !important;
+}
+
+/* 全局表格透明樣式 */
+.el-table,
+.el-table__header,
+.el-table__body,
+.el-table__footer,
+.el-table__header-wrapper,
+.el-table__body-wrapper,
+.el-table__footer-wrapper,
+.el-table__inner-wrapper,
+.el-scrollbar__wrap {
+  background-color: transparent !important;
+}
+
+.el-table::before,
+.el-table::after {
+  display: none !important;
+}
+
+.el-table .el-table__cell {
+  background-color: transparent !important;
+}
+
+.el-table tr {
+  background-color: transparent !important;
+}
+
+.el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+}
+
+.el-table__body tr.hover-row > td.el-table__cell,
+.el-table__body tr:hover > td.el-table__cell {
+  background-color: rgba(46, 139, 87, 0.3) !important;
+}
+
+/* 確保其他元素也是透明的 */
+.content-box {
+  background-color: rgba(30, 30, 30, 0.45) !important;
+}
+
+/* 查詢頁面自定義樣式 */
+.query-form-box {
+  background-color: rgba(30, 30, 30, 0.45) !important;
+}
+
+.query-results {
+  background-color: rgba(30, 30, 30, 0.3) !important;
+}
+
+/* 下拉選擇器透明背景樣式 */
+.el-select .el-select__wrapper {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2) inset !important;
+}
+
+.el-select__popper, 
+.el-select__popper.el-popper,
+.el-select-dropdown {
+  background-color: rgba(45, 45, 45, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.el-popper.is-light .el-popper__arrow::before {
+  background-color: rgba(45, 45, 45, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.el-select-dropdown__wrap,
+.el-scrollbar__view,
+.el-select-dropdown__list {
+  background-color: transparent !important;
+}
+
+.el-select .el-input__wrapper {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2) inset !important;
+}
+
+/* 查詢頁面表單元素樣式 */
+.query-form-box .el-form-item__label {
+  color: #fff !important;
+}
+
+.query-form-box .el-input__wrapper,
+.query-form-box .el-select__wrapper,
+.query-form-box .el-select .el-input .el-select__caret {
+  color: #fff !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.query-form-box .el-input__wrapper,
+.query-form-box .el-select .el-input__wrapper {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2) inset !important;
+}
+
+/* 強制為選擇器設置透明背景 */
+.el-select .el-tooltip__trigger {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.el-select .el-select__selection {
+  background-color: transparent !important;
+} 
