@@ -37,8 +37,34 @@
               <el-tag class="tag-project">project_id</el-tag>
               <el-tag class="tag-notes">notes</el-tag>
               
+              <!-- 新增：編碼和格式限制資訊 -->
+              <div class="format-info" v-if="templateInfo">
+                <h4>檔案格式要求：</h4>
+                <div class="format-details">
+                  <p><strong>文字編碼：</strong>{{ templateInfo.encoding }}</p>
+                  <p><strong>檔案格式：</strong>{{ templateInfo.file_format }}</p>
+                </div>
+                
+                <h4>欄位格式限制：</h4>
+                <div class="field-formats">
+                  <div v-for="(field, key) in templateInfo.fields" :key="key" class="field-item">
+                    <el-tag 
+                      :type="field.required ? 'danger' : 'info'" 
+                      :class="`tag-${key}`">
+                      {{ field.name }}
+                      <span v-if="field.required" class="required-mark">*必填</span>
+                    </el-tag>
+                    <span class="field-format">{{ field.format }}</span>
+                    <span class="field-example">範例：{{ field.example }}</span>
+                  </div>
+                </div>
+              </div>
+              
               <div class="download-template">
-                <a href="/woodsfrond/tree_sample.csv" download>下載範本檔案</a>
+                <el-button type="primary" @click="downloadTemplateFile" :loading="downloadingTemplate">
+                  下載最新範本檔案
+                </el-button>
+                <a href="/woodsfrond/tree_sample.csv" download style="margin-left: 10px;">下載舊版範本</a>
               </div>
             </div>
             
@@ -310,6 +336,8 @@ export default {
     const selectedProject = ref(null)  // 保存選擇的專案
     const projects = ref([])  // 保存所有專案
     const batchId = ref('')  // 新增：批次ID設定
+    const downloadingTemplate = ref(false)  // 新增：下載範本狀態
+    const templateInfo = ref(null)  // 新增：模板資訊
     
     // 添加 baseUrl 變數，用於範本檔案下載
     const baseUrl = process.env.VUE_APP_API_URL ? process.env.VUE_APP_API_URL.replace(/\/api$/, '') : 'https://srv.orderble.com.tw/woodsbackend'
@@ -331,8 +359,23 @@ export default {
       }
     }
 
-    // 在組件掛載後獲取專案列表
+    // 新增：獲取範本資訊
+    const fetchTemplateInfo = async () => {
+      try {
+        console.log('正在獲取範本資訊...')
+        const { getTemplateInfo } = await import('@/services/api')
+        const templateData = await getTemplateInfo()
+        templateInfo.value = templateData
+        console.log('獲取到的範本資訊:', templateData)
+      } catch (error) {
+        console.error('獲取範本資訊失敗:', error)
+        // 如果獲取失敗，不阻塞頁面其他功能
+      }
+    }
+
+    // 在組件掛載後獲取專案列表和範本資訊
     fetchProjects()
+    fetchTemplateInfo()
 
     const beforeUpload = (file) => {
       const isCSV = file.type === 'text/csv' || file.name.endsWith('.csv')
@@ -513,6 +556,32 @@ export default {
       }
     }
 
+    // 新增：下載範本文件
+    const downloadTemplateFile = async () => {
+      downloadingTemplate.value = true
+      try {
+        const { downloadTemplate } = await import('@/services/api')
+        const blob = await downloadTemplate()
+        
+        // 創建下載連結
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = 'tree_template_with_format.csv'
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+        
+        ElMessage.success('範本檔案下載成功！')
+      } catch (error) {
+        console.error('下載範本文件錯誤:', error)
+        ElMessage.error('下載範本文件失敗，請稍後再試')
+      } finally {
+        downloadingTemplate.value = false
+      }
+    }
+
     return {
       uploadedFiles,
       activeTab,
@@ -534,7 +603,10 @@ export default {
       beforeUpload,
       testApiConnection,
       baseUrl,
-      batchId
+      batchId,
+      downloadingTemplate,
+      templateInfo,
+      downloadTemplateFile
     }
   }
 }
@@ -742,5 +814,93 @@ h1, h2, h3, h4 {
 :deep(.el-alert__content p) {
   color: #ffffff !important;
   font-weight: 500 !important;
+}
+
+/* 新增：格式資訊樣式 */
+.format-info {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.format-info h4 {
+  color: #ffffff !important;
+  margin: 15px 0 10px 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.format-details p {
+  margin: 8px 0;
+  color: #e8e8e8;
+  font-size: 0.9rem;
+}
+
+.field-formats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  flex-wrap: wrap;
+}
+
+.field-item .el-tag {
+  min-width: 100px;
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+  font-weight: 500;
+}
+
+.field-item .el-tag.el-tag--danger {
+  background-color: rgba(245, 108, 108, 0.3) !important;
+  border-color: rgba(245, 108, 108, 0.5) !important;
+}
+
+.required-mark {
+  color: #ff6b6b;
+  font-weight: bold;
+  margin-left: 4px;
+}
+
+.field-format {
+  color: #b8c5d1;
+  font-size: 0.85rem;
+  flex: 1;
+  min-width: 200px;
+}
+
+.field-example {
+  color: #90c695;
+  font-size: 0.85rem;
+  font-style: italic;
+  min-width: 120px;
+}
+
+.download-template {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.download-template .el-button {
+  background-color: #2E8B57 !important;
+  border-color: #2E8B57 !important;
+}
+
+.download-template .el-button:hover {
+  background-color: #236841 !important;
+  border-color: #236841 !important;
 }
 </style> 

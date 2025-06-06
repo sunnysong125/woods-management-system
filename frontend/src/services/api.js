@@ -230,52 +230,55 @@ export const uploadCsvFile = async (file, options = {}) => {
 };
 
 /**
- * 驗證 CSV 數據但不匯入
+ * 驗證 CSV 文件格式
  * @param {File} file - 要驗證的 CSV 文件
  * @returns {Promise<Object>} - 驗證結果
  */
 export const validateCsvFile = async (file) => {
   try {
-    console.log('開始驗證CSV文件...');
-
     const formData = new FormData();
     formData.append('file', file);
     formData.append('validate_only', 'true');
-    
-    // 顯示請求詳情，便於調試
-    console.log('驗證請求詳情:', {
-      file: file.name,
-      size: file.size,
-      type: file.type,
-      lastModified: new Date(file.lastModified).toLocaleString()
-    });
     
     const response = await apiClient.post('/trees/upload-csv/', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
     });
-    
-    console.log('驗證響應:', response.data);
     return response.data;
   } catch (error) {
-    console.error('CSV驗證錯誤:', error);
-    console.error('錯誤詳情:', {
-      message: error.message,
-      stack: error.stack,
-      response: error.response ? {
-        status: error.response.status,
-        statusText: error.response.statusText,
-        data: error.response.data
-      } : '無響應數據'
+    console.error('CSV 文件驗證失敗:', error);
+    throw error;
+  }
+};
+
+/**
+ * 獲取範本欄位資訊和格式限制
+ * @returns {Promise<Object>} - 範本資訊
+ */
+export const getTemplateInfo = async () => {
+  try {
+    const response = await apiClient.get('/trees/template-info/');
+    return response.data;
+  } catch (error) {
+    console.error('獲取範本資訊失敗:', error);
+    throw error;
+  }
+};
+
+/**
+ * 下載動態生成的CSV範本
+ * @returns {Promise<Blob>} - 範本文件
+ */
+export const downloadTemplate = async () => {
+  try {
+    const response = await apiClient.get('/trees/download-template/', {
+      responseType: 'blob'
     });
-    
-    // 重新格式化錯誤以提供更有用的信息
-    throw {
-      message: `CSV驗證失敗: ${error.message}`,
-      response: error.response,
-      originalError: error
-    };
+    return response.data;
+  } catch (error) {
+    console.error('下載範本失敗:', error);
+    throw error;
   }
 };
 

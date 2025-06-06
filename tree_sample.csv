@@ -1,4 +1,5 @@
 species,diameter,height,record_date,project_id,notes
+樹種名稱(文字),胸徑cm(數字-最多8位整數2位小數),樹高m(數字-最多8位整數2位小數),記錄日期(YYYY-MM-DD格式),專案編號(整數),備註(文字)
 Oak,25,15,2025-04-01,,Healthy tree
 Pine,30,20,2025-04-02,,Needs pruning
 Maple,15,10,2025-04-03,,Newly planted

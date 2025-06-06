@@ -1,0 +1,36 @@
+## 四、Scratchpad
+
+### 任務：優化上傳範本功能
+**目標**：為樹木管理系統的CSV上傳功能添加格式限制說明
+
+**需求分析**：
+- [X] 探索專案結構，了解現有上傳功能
+- [X] 分析 Tree Model 的欄位限制
+- [X] 創建新的範本生成API，包含格式限制
+- [X] 修改前端顯示文字編碼和格式限制資訊
+- [X] 更新範本檔案，在第二列添加格式限制說明
+- [ ] 測試功能運作
+- [ ] 上傳到 GitHub
+
+**發現的格式限制**：
+- diameter: DecimalField(max_digits=10, decimal_places=2) - 最多10位數，2位小數
+- height: DecimalField(max_digits=10, decimal_places=2) - 最多10位數，2位小數  
+- record_date: DateField - 格式需為 YYYY-MM-DD
+- species, notes: TextField - 無長度限制
+- project_id: IntegerField - 需為整數
+
+**技術實作規劃**：
+1. [X] 後端新增 API 端點生成動態範本
+2. [X] 前端修改上傳介面顯示編碼和格式資訊
+3. [X] 更新靜態範本檔案包含格式限制行
+
+**已實現的功能**：
+1. 範本檔案現在包含第二列的格式限制說明
+2. 後端新增兩個API端點：
+   - `/api/trees/template-info/` - 獲取範本欄位資訊
+   - `/api/trees/download-template/` - 動態生成並下載範本
+3. 前端顯示：
+   - 文字編碼資訊 (UTF-8)
+   - 檔案格式 (CSV)
+   - 各欄位的格式限制和範例
+   - 動態下載最新範本按鈕 

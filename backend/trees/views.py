@@ -425,7 +425,152 @@ class TreeViewSet(viewsets.ModelViewSet):
         """測試API是否能正常訪問"""
         print("測試端點被訪問")
         return Response({'message': '測試成功！API正常工作'}, status=status.HTTP_200_OK)
+    
+    @action(detail=False, methods=['get'], url_path='download-template')
+    def download_template(self, request):
+        """動態生成並下載CSV範本檔案，包含格式限制說明"""
+        try:
+            # 定義欄位及其格式限制
+            field_info = {
+                'species': {
+                    'name': '樹種名稱',
+                    'format': '文字',
+                    'required': True
+                },
+                'diameter': {
+                    'name': '胸徑cm',
+                    'format': '數字(最多8位整數2位小數)',
+                    'required': False
+                },
+                'height': {
+                    'name': '樹高m', 
+                    'format': '數字(最多8位整數2位小數)',
+                    'required': False
+                },
+                'record_date': {
+                    'name': '記錄日期',
+                    'format': 'YYYY-MM-DD格式',
+                    'required': False
+                },
+                'project_id': {
+                    'name': '專案編號',
+                    'format': '整數',
+                    'required': False
+                },
+                'notes': {
+                    'name': '備註',
+                    'format': '文字',
+                    'required': False
+                }
+            }
+            
+            # 創建 CSV 內容
+            csv_content = StringIO()
+            writer = csv.writer(csv_content)
+            
+            # 第一行：欄位名稱
+            headers = list(field_info.keys())
+            writer.writerow(headers)
+            
+            # 第二行：格式限制說明
+            format_row = []
+            for field in headers:
+                info = field_info[field]
+                format_desc = f"{info['name']}({info['format']})"
+                if info['required']:
+                    format_desc += '*必填'
+                format_row.append(format_desc)
+            writer.writerow(format_row)
+            
+            # 添加範例資料
+            sample_data = [
+                ['台灣櫸木', '35.5', '18.2', '2024-12-20', '1', '健康狀態良好'],
+                ['台灣紅檜', '120.75', '25.8', '2024-12-21', '1', '位於中部山區的古老紅檜'],
+                ['樟樹', '45.3', '12.5', '2024-12-22', '2', '市區行道樹'],
+            ]
+            
+            for row in sample_data:
+                writer.writerow(row)
+            
+            # 準備 HTTP 響應
+            response = HttpResponse(
+                csv_content.getvalue(),
+                content_type='text/csv; charset=utf-8'
+            )
+            response['Content-Disposition'] = 'attachment; filename="tree_template_with_format.csv"'
+            
+            # 添加 BOM 以支援 Excel 正確顯示中文
+            response.write('\ufeff')
+            
+            return response
+            
+        except Exception as e:
+            print(f"生成範本時發生錯誤: {str(e)}")
+            return Response({
+                'error': f'生成範本時發生錯誤: {str(e)}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
+    @action(detail=False, methods=['get'], url_path='template-info')
+    def template_info(self, request):
+        """獲取範本欄位資訊和格式限制，供前端顯示"""
+        try:
+            field_info = {
+                'encoding': 'UTF-8',
+                'file_format': 'CSV (逗號分隔值)',
+                'fields': {
+                    'species': {
+                        'name': '樹種名稱',
+                        'type': 'TextField',
+                        'format': '文字類型，無長度限制',
+                        'required': True,
+                        'example': '台灣櫸木'
+                    },
+                    'diameter': {
+                        'name': '胸徑(cm)',
+                        'type': 'DecimalField',
+                        'format': '數字類型，最多8位整數2位小數',
+                        'required': False,
+                        'example': '35.5'
+                    },
+                    'height': {
+                        'name': '樹高(m)',
+                        'type': 'DecimalField', 
+                        'format': '數字類型，最多8位整數2位小數',
+                        'required': False,
+                        'example': '18.2'
+                    },
+                    'record_date': {
+                        'name': '記錄日期',
+                        'type': 'DateField',
+                        'format': '日期格式 YYYY-MM-DD',
+                        'required': False,
+                        'example': '2024-12-20'
+                    },
+                    'project_id': {
+                        'name': '專案編號',
+                        'type': 'IntegerField',
+                        'format': '整數類型',
+                        'required': False,
+                        'example': '1'
+                    },
+                    'notes': {
+                        'name': '備註',
+                        'type': 'TextField',
+                        'format': '文字類型，無長度限制',
+                        'required': False,
+                        'example': '健康狀態良好'
+                    }
+                }
+            }
+            
+            return Response(field_info)
+            
+        except Exception as e:
+            print(f"獲取範本資訊時發生錯誤: {str(e)}")
+            return Response({
+                'error': f'獲取範本資訊時發生錯誤: {str(e)}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     @action(detail=False, methods=['post'], url_path='generate-bulk-qr')
     def generate_bulk_qr(self, request):
         """批量生成樹木QR碼並提供下載"""
