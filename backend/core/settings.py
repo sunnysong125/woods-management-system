@@ -164,6 +164,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # CORS設置
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "https://srv.orderble.com.tw",
+    "http://srv.orderble.com.tw",
+]
 CORS_ALLOW_METHODS = [
     'DELETE',
     'GET',
@@ -185,7 +191,12 @@ CORS_ALLOW_HEADERS = [
 ]
 
 # CSRF設置
-CSRF_TRUSTED_ORIGINS = ['http://localhost:8080', 'http://127.0.0.1:8080']
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8080', 
+    'http://127.0.0.1:8080',
+    'https://srv.orderble.com.tw',  # 生產環境 HTTPS
+    'http://srv.orderble.com.tw',   # 生產環境 HTTP（備用）
+]
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_HTTPONLY = False
 SESSION_COOKIE_SAMESITE = 'Lax'

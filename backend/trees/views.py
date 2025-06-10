@@ -425,91 +425,36 @@ class TreeViewSet(viewsets.ModelViewSet):
         """測試API是否能正常訪問"""
         print("測試端點被訪問")
         return Response({'message': '測試成功！API正常工作'}, status=status.HTTP_200_OK)
-    
+
     @action(detail=False, methods=['get'], url_path='download-template')
     def download_template(self, request):
-        """動態生成並下載CSV範本檔案，包含格式限制說明"""
+        """下載範本檔案 - 簡化版本"""
         try:
-            # 定義欄位及其格式限制
-            field_info = {
-                'species': {
-                    'name': '樹種名稱',
-                    'format': '文字',
-                    'required': True
-                },
-                'diameter': {
-                    'name': '胸徑cm',
-                    'format': '數字(最多8位整數2位小數)',
-                    'required': False
-                },
-                'height': {
-                    'name': '樹高m', 
-                    'format': '數字(最多8位整數2位小數)',
-                    'required': False
-                },
-                'record_date': {
-                    'name': '記錄日期',
-                    'format': 'YYYY-MM-DD格式',
-                    'required': False
-                },
-                'project_id': {
-                    'name': '專案編號',
-                    'format': '整數',
-                    'required': False
-                },
-                'notes': {
-                    'name': '備註',
-                    'format': '文字',
-                    'required': False
-                }
-            }
+            # 直接創建CSV內容，避免檔案路徑問題
+            csv_content = "species,diameter,height,record_date,project_id,notes\n"
+            csv_content += "樹種名稱(文字)*必填,胸徑cm(數字-最多8位整數2位小數),樹高m(數字-最多8位整數2位小數),記錄日期(YYYY-MM-DD格式),專案編號(整數),備註(文字)\n"
+            csv_content += "台灣櫸木,35.5,18.2,2024-12-20,1,健康狀態良好\n"
+            csv_content += "台灣紅檜,120.75,25.8,2024-12-21,1,位於中部山區的古老紅檜\n"
+            csv_content += "樟樹,45.3,12.5,2024-12-22,2,市區行道樹\n"
             
-            # 創建 CSV 內容
-            csv_content = StringIO()
-            writer = csv.writer(csv_content)
-            
-            # 第一行：欄位名稱
-            headers = list(field_info.keys())
-            writer.writerow(headers)
-            
-            # 第二行：格式限制說明
-            format_row = []
-            for field in headers:
-                info = field_info[field]
-                format_desc = f"{info['name']}({info['format']})"
-                if info['required']:
-                    format_desc += '*必填'
-                format_row.append(format_desc)
-            writer.writerow(format_row)
-            
-            # 添加範例資料
-            sample_data = [
-                ['台灣櫸木', '35.5', '18.2', '2024-12-20', '1', '健康狀態良好'],
-                ['台灣紅檜', '120.75', '25.8', '2024-12-21', '1', '位於中部山區的古老紅檜'],
-                ['樟樹', '45.3', '12.5', '2024-12-22', '2', '市區行道樹'],
-            ]
-            
-            for row in sample_data:
-                writer.writerow(row)
+            # 添加 BOM 以支援 Excel 正確顯示中文
+            csv_with_bom = '\ufeff' + csv_content
             
             # 準備 HTTP 響應
             response = HttpResponse(
-                csv_content.getvalue(),
+                csv_with_bom,
                 content_type='text/csv; charset=utf-8'
             )
-            response['Content-Disposition'] = 'attachment; filename="tree_template_with_format.csv"'
-            
-            # 添加 BOM 以支援 Excel 正確顯示中文
-            response.write('\ufeff')
+            response['Content-Disposition'] = 'attachment; filename="tree_template.csv"'
             
             return response
             
         except Exception as e:
-            print(f"生成範本時發生錯誤: {str(e)}")
+            print(f"下載範本時發生錯誤: {str(e)}")
             return Response({
-                'error': f'生成範本時發生錯誤: {str(e)}'
+                'error': f'下載範本時發生錯誤: {str(e)}'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+
     @action(detail=False, methods=['get'], url_path='template-info')
     def template_info(self, request):
         """獲取範本欄位資訊和格式限制，供前端顯示"""

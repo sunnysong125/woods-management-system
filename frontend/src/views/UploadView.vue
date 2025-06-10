@@ -3,143 +3,112 @@
     <h1>上傳林木資料</h1>
     <div class="content-box">
       <div class="upload-types">
-        <el-tabs v-model="activeTab">
-          <el-tab-pane label="一般CSV檔案" name="general">
-            <el-upload
-              class="upload-demo"
-              drag
-              action="/api/csv/files/"
-              :headers="headers"
-              :on-success="handleGeneralSuccess"
-              :on-error="handleError"
-              :before-upload="beforeUpload"
-              multiple>
-              <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-              <div class="el-upload__text">
-                拖拽文件到此處，或 <em>點擊上傳</em>
-              </div>
-              <template #tip>
-                <div class="el-upload__tip">
-                  請上傳CSV格式文件，文件大小不超過10MB
-                </div>
-              </template>
-            </el-upload>
-          </el-tab-pane>
+        <!-- 直接顯示樹木資料上傳，不使用tabs -->
+        <div class="tree-upload-info">
+          <p>請上傳包含以下列的CSV檔案：</p>
+          <el-tag class="tag-id">ID</el-tag>
+          <el-tag class="tag-species">species</el-tag>
+          <el-tag class="tag-diameter">diameter</el-tag>
+          <el-tag class="tag-height">height</el-tag>
+          <el-tag class="tag-date">record_date</el-tag>
+          <el-tag class="tag-project">project_id</el-tag>
+          <el-tag class="tag-notes">notes</el-tag>
           
-          <el-tab-pane label="樹木資料CSV" name="tree">
-            <div class="tree-upload-info">
-              <p>請上傳包含以下列的CSV檔案：</p>
-              <el-tag class="tag-id">ID</el-tag>
-              <el-tag class="tag-species">species</el-tag>
-              <el-tag class="tag-diameter">diameter</el-tag>
-              <el-tag class="tag-height">height</el-tag>
-              <el-tag class="tag-date">record_date</el-tag>
-              <el-tag class="tag-project">project_id</el-tag>
-              <el-tag class="tag-notes">notes</el-tag>
-              
-              <!-- 新增：編碼和格式限制資訊 -->
-              <div class="format-info" v-if="templateInfo">
-                <h4>檔案格式要求：</h4>
-                <div class="format-details">
-                  <p><strong>文字編碼：</strong>{{ templateInfo.encoding }}</p>
-                  <p><strong>檔案格式：</strong>{{ templateInfo.file_format }}</p>
-                </div>
-                
-                <h4>欄位格式限制：</h4>
-                <div class="field-formats">
-                  <div v-for="(field, key) in templateInfo.fields" :key="key" class="field-item">
-                    <el-tag 
-                      :type="field.required ? 'danger' : 'info'" 
-                      :class="`tag-${key}`">
-                      {{ field.name }}
-                      <span v-if="field.required" class="required-mark">*必填</span>
-                    </el-tag>
-                    <span class="field-format">{{ field.format }}</span>
-                    <span class="field-example">範例：{{ field.example }}</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="download-template">
-                <el-button type="primary" @click="downloadTemplateFile" :loading="downloadingTemplate">
-                  下載最新範本檔案
-                </el-button>
-                <a href="/woodsfrond/tree_sample.csv" download style="margin-left: 10px;">下載舊版範本</a>
-              </div>
+          <div class="format-info">
+            <h3>檔案格式說明</h3>
+            <div class="format-details">
+              <p><strong>文字編碼：</strong>UTF-8</p>
+              <p><strong>檔案格式：</strong>CSV (逗號分隔值)</p>
+              <p><strong>重要欄位：</strong></p>
+              <ul>
+                <li><strong>species (樹種名稱)</strong> - 文字類型，必填</li>
+                <li><strong>diameter (胸徑cm)</strong> - 數字類型，最多8位整數2位小數</li>
+                <li><strong>height (樹高m)</strong> - 數字類型，最多8位整數2位小數</li>
+                <li><strong>record_date (記錄日期)</strong> - 日期格式 YYYY-MM-DD</li>
+                <li><strong>project_id (專案編號)</strong> - 整數類型</li>
+                <li><strong>notes (備註)</strong> - 文字類型</li>
+              </ul>
             </div>
-            
-            <!-- 添加專案選擇 -->
-            <div class="project-selection">
-              <p>請選擇專案：</p>
-              <el-select v-model="selectedProject" placeholder="請選擇專案" style="width: 100%; margin-bottom: 20px;">
-                <el-option
-                  v-for="project in projects"
-                  :key="project.id"
-                  :label="project.name"
-                  :value="project.id"
-                />
-              </el-select>
+          </div>
+          
+          <div class="download-template">
+            <el-button type="primary" @click="downloadTemplateFile" :loading="downloadingTemplate">
+              下載範本
+            </el-button>
+            <span style="margin-left: 10px; color: #ffffff; opacity: 0.8;">範本包含格式限制說明和範例資料</span>
+          </div>
+        </div>
+        
+        <!-- 添加專案選擇 -->
+        <div class="project-selection">
+          <p>請選擇專案：</p>
+          <el-select v-model="selectedProject" placeholder="請選擇專案" style="width: 100%; margin-bottom: 20px;">
+            <el-option
+              v-for="project in projects"
+              :key="project.id"
+              :label="project.name"
+              :value="project.id"
+            />
+          </el-select>
+        </div>
+        
+        <!-- 修改批次ID設定區域的alert樣式 -->
+        <div class="batch-id-section">
+          <p>批次ID設定：</p>
+          <el-input
+            v-model="batchId"
+            placeholder="請輸入批次ID（將應用於所有記錄）"
+            style="width: 100%; margin-bottom: 10px;"
+            required
+          />
+          <el-alert
+            type="info"
+            show-icon
+            :closable="false"
+            style="background-color: rgba(13, 35, 69, 0.8) !important; border: 1px solid #409EFF;">
+            <p style="color: #ffffff !important; font-weight: 500;">若CSV檔案中已有ID欄位，此處設定將優先使用</p>
+            <p style="color: #ffffff !important; font-weight: 500;">若未設定批次ID且CSV中無ID欄位，上傳將失敗</p>
+          </el-alert>
+        </div>
+        
+        <el-upload
+          class="upload-demo"
+          drag
+          :auto-upload="false"
+          :on-change="handleTreeFileChange"
+          :before-upload="beforeUpload"
+          multiple>
+          <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+          <div class="el-upload__text">
+            拖拽文件到此處，或 <em>點擊上傳</em>
+          </div>
+          <template #tip>
+            <div class="el-upload__tip">
+              請上傳CSV格式文件，文件大小不超過10MB
             </div>
-            
-            <!-- 修改批次ID設定區域的alert樣式 -->
-            <div class="batch-id-section">
-              <p>批次ID設定：</p>
-              <el-input
-                v-model="batchId"
-                placeholder="請輸入批次ID（將應用於所有記錄）"
-                style="width: 100%; margin-bottom: 10px;"
-                required
-              />
-              <el-alert
-                type="info"
-                show-icon
-                :closable="false"
-                style="background-color: rgba(13, 35, 69, 0.8) !important; border: 1px solid #409EFF;">
-                <p style="color: #ffffff !important; font-weight: 500;">若CSV檔案中已有ID欄位，此處設定將優先使用</p>
-                <p style="color: #ffffff !important; font-weight: 500;">若未設定批次ID且CSV中無ID欄位，上傳將失敗</p>
-              </el-alert>
-            </div>
-            
-            <el-upload
-              class="upload-demo"
-              drag
-              :auto-upload="false"
-              :on-change="handleTreeFileChange"
-              :before-upload="beforeUpload"
-              multiple>
-              <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-              <div class="el-upload__text">
-                拖拽文件到此處，或 <em>點擊上傳</em>
-              </div>
-              <template #tip>
-                <div class="el-upload__tip">
-                  請上傳CSV格式文件，文件大小不超過10MB
-                </div>
-              </template>
-            </el-upload>
-            
-            <!-- 修改上傳按鈕部分，簡化禁用條件 -->
-            <div class="upload-actions">
-              <el-button 
-                type="primary" 
-                @click="uploadTreeFile" 
-                :disabled="!treeFile || uploading" 
-                :loading="uploading">
-                上傳樹木資料
-              </el-button>
-              <el-button 
-                type="warning" 
-                @click="validateTreeFile" 
-                :disabled="!treeFile || validating" 
-                :loading="validating">
-                僅驗證CSV
-              </el-button>
-              <el-button type="info" @click="testApiConnection">
-                測試API連接
-              </el-button>
-            </div>
-          </el-tab-pane>
-        </el-tabs>
+          </template>
+        </el-upload>
+        
+        <!-- 修改上傳按鈕部分，簡化禁用條件 -->
+        <div class="upload-actions">
+          <el-button 
+            type="primary" 
+            @click="uploadTreeFile" 
+            :disabled="!treeFile || uploading" 
+            :loading="uploading">
+            上傳樹木資料
+          </el-button>
+          <el-button 
+            type="warning" 
+            @click="validateTreeFile" 
+            :disabled="!treeFile || validating" 
+            :loading="validating">
+            僅驗證CSV
+          </el-button>
+          <el-button type="info" @click="testApiConnection">
+            測試API連接
+          </el-button>
+        </div>
       </div>
       
       <!-- 修改驗證結果顯示樣式 -->
@@ -327,7 +296,6 @@ export default {
   setup() {
     const store = useStore()
     const uploadedFiles = ref([])
-    const activeTab = ref('tree')  // 預設選擇樹木上傳
     const treeFile = ref(null)  // 保存選擇的樹木CSV文件
     const uploading = ref(false)  // 上傳狀態
     const validating = ref(false)  // 驗證狀態
@@ -336,8 +304,7 @@ export default {
     const selectedProject = ref(null)  // 保存選擇的專案
     const projects = ref([])  // 保存所有專案
     const batchId = ref('')  // 新增：批次ID設定
-    const downloadingTemplate = ref(false)  // 新增：下載範本狀態
-    const templateInfo = ref(null)  // 新增：模板資訊
+    const downloadingTemplate = ref(false)  // 下載範本狀態
     
     // 添加 baseUrl 變數，用於範本檔案下載
     const baseUrl = process.env.VUE_APP_API_URL ? process.env.VUE_APP_API_URL.replace(/\/api$/, '') : 'https://srv.orderble.com.tw/woodsbackend'
@@ -359,23 +326,8 @@ export default {
       }
     }
 
-    // 新增：獲取範本資訊
-    const fetchTemplateInfo = async () => {
-      try {
-        console.log('正在獲取範本資訊...')
-        const { getTemplateInfo } = await import('@/services/api')
-        const templateData = await getTemplateInfo()
-        templateInfo.value = templateData
-        console.log('獲取到的範本資訊:', templateData)
-      } catch (error) {
-        console.error('獲取範本資訊失敗:', error)
-        // 如果獲取失敗，不阻塞頁面其他功能
-      }
-    }
-
-    // 在組件掛載後獲取專案列表和範本資訊
+    // 在組件掛載後獲取專案列表
     fetchProjects()
-    fetchTemplateInfo()
 
     const beforeUpload = (file) => {
       const isCSV = file.type === 'text/csv' || file.name.endsWith('.csv')
@@ -388,17 +340,6 @@ export default {
         ElMessage.error('文件大小不能超過10MB！')
       }
       return isCSV && isLt10M
-    }
-
-    const handleGeneralSuccess = (response, file) => {
-      ElMessage.success('上傳成功！')
-      uploadedFiles.value.push({
-        fileName: file.name,
-        uploadTime: new Date().toLocaleString(),
-        status: '成功',
-        type: '一般CSV',
-        id: response.id
-      })
     }
     
     // 處理樹木CSV文件選擇
@@ -556,7 +497,7 @@ export default {
       }
     }
 
-    // 新增：下載範本文件
+    // 下載範本文件
     const downloadTemplateFile = async () => {
       downloadingTemplate.value = true
       try {
@@ -567,7 +508,7 @@ export default {
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = 'tree_template_with_format.csv'
+        a.download = 'tree_template.csv'
         document.body.appendChild(a)
         a.click()
         document.body.removeChild(a)
@@ -584,7 +525,6 @@ export default {
 
     return {
       uploadedFiles,
-      activeTab,
       treeFile,
       uploading,
       validating,
@@ -593,7 +533,6 @@ export default {
       selectedProject,
       projects,
       headers,
-      handleGeneralSuccess,
       handleTreeFileChange,
       uploadTreeFile,
       validateTreeFile,
@@ -605,7 +544,6 @@ export default {
       baseUrl,
       batchId,
       downloadingTemplate,
-      templateInfo,
       downloadTemplateFile
     }
   }
@@ -825,7 +763,7 @@ h1, h2, h3, h4 {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.format-info h4 {
+.format-info h3 {
   color: #ffffff !important;
   margin: 15px 0 10px 0;
   font-size: 1rem;

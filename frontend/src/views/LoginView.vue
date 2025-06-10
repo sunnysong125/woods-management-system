@@ -63,7 +63,7 @@
 import { ref, reactive } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import axios from '@/utils/axios'
 
 export default {
@@ -164,7 +164,33 @@ export default {
             router.push(redirectPath)
           } catch (error) {
             console.error('登錄錯誤:', error.response?.data) // 添加錯誤日誌
-            if (error.response?.data?.message) {
+            
+            // 檢查是否為密碼錯誤或認證失敗
+            if (error.response?.status === 400 || error.response?.status === 401) {
+              // 顯示彈出視窗而不是跳轉到錯誤頁面
+              let errorMsg = '登錄失敗'
+              
+              if (error.response?.data?.message) {
+                errorMsg = error.response.data.message
+              } else if (error.response?.data?.detail) {
+                errorMsg = error.response.data.detail
+              } else if (error.response?.data?.non_field_errors) {
+                errorMsg = Array.isArray(error.response.data.non_field_errors) 
+                  ? error.response.data.non_field_errors.join(', ')
+                  : error.response.data.non_field_errors
+              } else if (error.response?.status === 401) {
+                errorMsg = '用戶名或密碼錯誤，請重新輸入'
+              } else if (error.response?.status === 400) {
+                errorMsg = '登錄信息有誤，請檢查用戶名和密碼'
+              }
+              
+              // 使用彈出視窗顯示錯誤
+              ElMessageBox.alert(errorMsg, '登錄失敗', {
+                confirmButtonText: '確定',
+                type: 'error',
+                center: true
+              })
+            } else if (error.response?.data?.message) {
               errorMessage.value = error.response.data.message
             } else if (error.response?.data) {
               // 處理表單驗證錯誤

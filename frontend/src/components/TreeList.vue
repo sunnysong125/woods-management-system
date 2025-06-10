@@ -107,22 +107,65 @@
       <!-- 數據表格 -->
       <el-table
         v-if="!loading && !error && trees.length > 0"
-        :data="trees"
+        :data="sortedTrees"
         style="width: 100%"
         border
         stripe
         max-height="450"
         class="transparent-table"
         @selection-change="handleSelectionChange"
+        @sort-change="handleSortChange"
       >
         <el-table-column type="selection" width="55" />
-        <el-table-column prop="_id" label="ID" width="80" />
-        <el-table-column prop="species" label="樹種名稱" width="150" />
-        <el-table-column prop="diameter" label="胸徑(公分)" width="120" />
-        <el-table-column prop="height" label="樹高(公尺)" width="120" />
-        <el-table-column prop="record_date" label="記錄日期" width="120" />
-        <el-table-column prop="project_name" label="專案" width="150" />
-        <el-table-column prop="created_by_name" label="創建者" width="120">
+        <el-table-column 
+          prop="_id" 
+          label="ID" 
+          width="80" 
+          sortable="custom"
+          :sort-orders="['ascending', 'descending']"
+        />
+        <el-table-column 
+          prop="species" 
+          label="樹種名稱" 
+          width="150" 
+          sortable="custom"
+          :sort-orders="['ascending', 'descending']"
+        />
+        <el-table-column 
+          prop="diameter" 
+          label="胸徑(公分)" 
+          width="120" 
+          sortable="custom"
+          :sort-orders="['ascending', 'descending']"
+        />
+        <el-table-column 
+          prop="height" 
+          label="樹高(公尺)" 
+          width="120" 
+          sortable="custom"
+          :sort-orders="['ascending', 'descending']"
+        />
+        <el-table-column 
+          prop="record_date" 
+          label="記錄日期" 
+          width="120" 
+          sortable="custom"
+          :sort-orders="['ascending', 'descending']"
+        />
+        <el-table-column 
+          prop="project_name" 
+          label="專案" 
+          width="150" 
+          sortable="custom"
+          :sort-orders="['ascending', 'descending']"
+        />
+        <el-table-column 
+          prop="created_by_name" 
+          label="創建者" 
+          width="120" 
+          sortable="custom"
+          :sort-orders="['ascending', 'descending']"
+        >
           <template #default="scope">
             {{ scope.row.created_by_name || '未知' }}
           </template>
@@ -410,6 +453,8 @@ export default {
         return (parseInt(a._id) || 0) - (parseInt(b._id) || 0);
       });
     });
+    const sortedTrees = ref([]);
+    const currentSort = ref({ prop: null, order: null });
     const projects = ref([]);
     const loading = ref(true);
     const error = ref('');
@@ -454,6 +499,8 @@ export default {
       try {
         const data = await getTrees();
         allTrees.value = data;
+        // 初始化排序的樹木列表
+        sortedTrees.value = [...trees.value];
       } catch (err) {
         error.value = '獲取樹木數據失敗，請稍後再試';
         console.error(err);
@@ -649,6 +696,15 @@ export default {
       fetchTrees();
     });
     
+    // 監聽樹木列表變化，同步更新排序列表
+    watch(() => trees.value, (newTrees) => {
+      sortedTrees.value = [...newTrees];
+      // 如果有當前排序，重新應用排序
+      if (currentSort.value.prop) {
+        applySorting(currentSort.value);
+      }
+    }, { deep: true });
+    
     const checkAdminStatus = async () => {
       try {
         console.log('正在检查管理员状态...')
@@ -789,6 +845,55 @@ export default {
       console.log('選擇的樹木:', selection);
     };
     
+    // 處理表格排序變化的方法
+    const handleSortChange = ({ prop, order }) => {
+      currentSort.value = { prop, order };
+      if (prop && order) {
+        applySorting(currentSort.value);
+      } else {
+        // 如果沒有排序，恢復原始順序
+        sortedTrees.value = [...trees.value];
+      }
+    };
+    
+    // 應用排序的方法
+    const applySorting = ({ prop, order }) => {
+      const sortOrder = order === 'ascending' ? 1 : -1;
+      
+      sortedTrees.value = [...trees.value].sort((a, b) => {
+        let aValue = a[prop];
+        let bValue = b[prop];
+        
+        // 處理空值
+        if (aValue === null || aValue === undefined) aValue = '';
+        if (bValue === null || bValue === undefined) bValue = '';
+        
+        // 對於ID字段，轉換為數字進行排序
+        if (prop === '_id') {
+          aValue = parseInt(aValue) || 0;
+          bValue = parseInt(bValue) || 0;
+          return sortOrder * (aValue - bValue);
+        }
+        
+        // 對於數字字段（胸徑、樹高），轉換為數字進行排序
+        if (prop === 'diameter' || prop === 'height') {
+          aValue = parseFloat(aValue) || 0;
+          bValue = parseFloat(bValue) || 0;
+          return sortOrder * (aValue - bValue);
+        }
+        
+        // 對於日期字段，轉換為日期進行排序
+        if (prop === 'record_date') {
+          const dateA = new Date(aValue);
+          const dateB = new Date(bValue);
+          return sortOrder * (dateA.getTime() - dateB.getTime());
+        }
+        
+        // 對於字符串字段，使用本地化比較
+        return sortOrder * String(aValue).localeCompare(String(bValue), 'zh-TW');
+      });
+    };
+    
     return {
       trees,
       projects,
@@ -824,6 +929,10 @@ export default {
       todayRecords,
       hasTodayRecords,
       handleSelectionChange,
+      handleSortChange,
+      sortedTrees,
+      currentSort,
+      applySorting,
     };
   }
 };
