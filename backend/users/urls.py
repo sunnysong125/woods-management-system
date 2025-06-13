@@ -12,4 +12,6 @@ urlpatterns = [
     path('logout/', views.LogoutView.as_view(), name='logout'),
     path('password-change/', views.PasswordChangeView.as_view(), name='password-change'),
     path('current-user/', views.CurrentUserView.as_view(), name='current-user'),
+    path('csrf-token/', views.get_csrf_token, name='csrf-token'),
+    path('test-login/', views.test_login, name='test-login'),  # 臨時測試端點
 ] 

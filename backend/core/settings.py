@@ -67,6 +67,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
+    'core.middleware.CSRFDebugMiddleware',  # 添加CSRF調試中間件
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -196,11 +197,24 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:8080',
     'https://srv.orderble.com.tw',  # 生產環境 HTTPS
     'http://srv.orderble.com.tw',   # 生產環境 HTTP（備用）
+    'https://srv.orderble.com.tw:443',  # 明確指定HTTPS端口
+    'http://srv.orderble.com.tw:80',    # 明確指定HTTP端口
 ]
+
+# 添加更多安全設置
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None
+CSRF_COOKIE_SECURE = False  # 如果使用HTTPS，設為True
+CSRF_COOKIE_DOMAIN = None  # 暫時設為None，避免跨域問題
+SESSION_COOKIE_DOMAIN = None  # 暫時設為None
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_HTTPONLY = False
 SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_HTTPONLY = True
+
+# 添加調試設置
+CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
+CSRF_USE_SESSIONS = False
+CSRF_COOKIE_NAME = 'csrftoken'
 
 # REST Framework设置
 REST_FRAMEWORK = {

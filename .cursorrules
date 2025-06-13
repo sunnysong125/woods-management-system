@@ -52,16 +52,54 @@
 - [X] 監控維護和疑難排解
 - [X] 效能優化建議
 
+**7. 生產環境問題修復**
+- [X] 修復CSRF跨域問題：添加srv.orderble.com.tw到信任域名
+- [X] 修復404重定向問題：改善前端錯誤處理邏輯
+- [X] 修復導入錯誤：ensure_csrf_cookie正確從django.views.decorators.csrf導入
+- [X] 添加CSRF token獲取端點：/api/users/csrf-token/
+- [X] 創建測試腳本：test_server.py用於驗證服務器啟動
+
 **部署架構特點**：
 1. **多環境支援**：開發、測試、生產環境配置分離
-2. **安全性**：非root用戶、HTTPS支援、安全標頭
+2. **安全性**：非root用戶、HTTPS支援、安全標頭、CSRF保護
 3. **可擴展性**：容器化部署、負載均衡、健康檢查
 4. **自動化**：CI/CD pipeline、自動測試、自動部署
 5. **監控性**：日誌管理、健康檢查端點、備份策略
+6. **錯誤處理**：詳細日誌記錄、友善錯誤訊息、自動重試機制
 
 **GitHub設置需求**：
 - Repository Secrets：DOCKERHUB_USERNAME、DOCKERHUB_TOKEN
 - GitHub Pages：啟用Actions部署
 - 分支保護：main分支需要PR審核
 
-✅ **任務完成！** 完整的CI/CD部署流程已建立，支援從代碼提交到生產部署的全自動化流程。 
+✅ **任務完成！** 完整的CI/CD部署流程已建立，包含生產環境問題修復，支援從代碼提交到生產部署的全自動化流程。
+
+### 任務：更新系統Logo和Favicon ✅ 已完成
+**目標**：將左上角的"森"字圖標和favicon更換為Orderble品牌圖片
+
+**執行內容**：
+- [X] 複製用戶提供的圖片(C:\Users\songs\Downloads\orderbleimg.png)到專案
+- [X] 更新SideBar.vue組件，將"森"文字替換為Orderble Logo圖片
+- [X] 更新CSS樣式，添加logo-img樣式和hover效果
+- [X] 創建/更新index.html模板，設置多格式favicon支援
+- [X] 更新vue.config.js，確保favicon正確複製到建構輸出
+- [X] 更新頁面標題為"森林樹木管理系統 - Orderble"
+- [X] 添加SEO meta標籤和描述
+- [X] 重新建構前端項目
+- [X] 創建Windows更新腳本(update_logo_windows.bat)
+
+**技術實作細節**：
+1. **Logo圖片**: 放置於frontend/src/assets/images/orderble-logo.png
+2. **Favicon設置**: 同時支援PNG和ICO格式，包含Apple Touch Icon
+3. **響應式設計**: Logo大小40x40px，包含hover放大效果
+4. **建構配置**: 透過vue.config.js確保favicon文件正確複製
+5. **SEO優化**: 更新頁面標題、描述和關鍵字
+
+**檔案位置**：
+- Logo: frontend/src/assets/images/orderble-logo.png
+- Favicon: frontend/public/favicon.png, frontend/public/favicon.ico  
+- 主模板: frontend/public/index.html
+- 組件更新: frontend/src/components/SideBar.vue
+- 建構輸出: frontend/dist/ (包含處理過的圖片和favicon)
+
+✅ **品牌更新完成！** 系統已成功整合Orderble品牌視覺元素，提升品牌一致性和專業形象。 

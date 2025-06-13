@@ -1,7 +1,7 @@
 <template>
   <div class="sidebar">
     <div class="logo" @click="$router.push('/')">
-      <div class="p-icon">森</div>
+      <img src="@/assets/images/orderble-logo.png" alt="Orderble Logo" class="logo-img" />
     </div>
     <div class="menu-items">
       <div class="menu-item" @click="$router.push('/')">
@@ -92,17 +92,17 @@ export default {
   align-items: center;
 }
 
-.p-icon {
-  width: 30px;
-  height: 30px;
-  background-color: #2E8B57;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 5px;
-  font-weight: bold;
-  font-size: 14px;
+.logo-img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  border-radius: 8px;
+}
+
+.logo-img:hover {
+  transform: scale(1.1);
 }
 
 .menu-items {

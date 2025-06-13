@@ -1,43 +1,47 @@
 import { createStore } from 'vuex'
-import axios from 'axios'
+import axios from '@/utils/axios'
 
 export default createStore({
   state: {
-    user: JSON.parse(localStorage.getItem('user') || 'null'),
-    token: localStorage.getItem('token') || '',
+    user: null,
+    token: localStorage.getItem('token') || null,
     isAuthenticated: !!localStorage.getItem('token'),
     files: []
   },
   getters: {
-    isAuthenticated: state => !!state.token,
-    user: state => state.user,
+    isAuthenticated: state => state.isAuthenticated,
+    currentUser: state => state.user,
+    token: state => state.token,
     files: state => state.files
   },
   mutations: {
-    SET_TOKEN(state, token) {
-      state.token = token
-      state.isAuthenticated = true
-      localStorage.setItem('token', token)
-      // 設置 axios 默認 headers
-      axios.defaults.headers.common['Authorization'] = `Token ${token}`
-    },
     SET_USER(state, user) {
       state.user = user
-      state.isAuthenticated = true
-      localStorage.setItem('user', JSON.stringify(user))
+      state.isAuthenticated = !!user
     },
-    LOGOUT(state) {
-      state.token = ''
+    
+    SET_TOKEN(state, token) {
+      state.token = token
+      state.isAuthenticated = !!token
+      if (token) {
+        localStorage.setItem('token', token)
+      } else {
+        localStorage.removeItem('token')
+      }
+    },
+    
+    CLEAR_AUTH(state) {
       state.user = null
+      state.token = null
       state.isAuthenticated = false
       localStorage.removeItem('token')
       localStorage.removeItem('user')
-      // 清除 axios 默認 headers
-      delete axios.defaults.headers.common['Authorization']
     },
+    
     SET_FILES(state, files) {
       state.files = files
     },
+    
     ADD_FILE(state, file) {
       state.files.push(file)
     }
@@ -45,32 +49,44 @@ export default createStore({
   actions: {
     async login({ commit }, credentials) {
       try {
+        console.log('開始登入流程...')
+        
+        // 首先獲取CSRF token
+        console.log('獲取CSRF token...')
+        await axios.get('/api/users/csrf-token/')
+        
+        // 等待一小段時間確保cookie設置完成
+        await new Promise(resolve => setTimeout(resolve, 100))
+        
+        // 檢查CSRF token是否已設置
+        const csrfToken = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('csrftoken='))
+          ?.split('=')[1]
+        
+        console.log('當前CSRF token:', csrfToken)
+        console.log('當前Origin:', window.location.origin)
+        console.log('當前Host:', window.location.host)
+        
+        // 然後進行登入
+        console.log('發送登入請求...')
         const response = await axios.post('/api/users/login/', credentials)
-        const { user, token } = response.data
         
-        // 更新 state
+        const { token, user } = response.data
+        
+        // 設置token和用戶信息
         commit('SET_TOKEN', token)
         commit('SET_USER', user)
         
+        // 保存用戶信息到localStorage
+        localStorage.setItem('user', JSON.stringify(user))
+        
+        console.log('登入成功')
         return response.data
       } catch (error) {
-        console.error('登錄錯誤:', error)
-        throw error
-      }
-    },
-    
-    async register({ commit }, userData) {
-      try {
-        const response = await axios.post('/api/users/register/', userData)
-        const { user, token } = response.data
-        
-        // 更新 state
-        commit('SET_TOKEN', token)
-        commit('SET_USER', user)
-        
-        return response.data
-      } catch (error) {
-        console.error('註冊錯誤:', error)
+        console.error('登入失敗:', error)
+        console.error('錯誤詳情:', error.response?.data)
+        commit('CLEAR_AUTH')
         throw error
       }
     },
@@ -79,34 +95,24 @@ export default createStore({
       try {
         await axios.post('/api/users/logout/')
       } catch (error) {
-        console.error('登出錯誤:', error)
+        console.error('Logout error:', error)
       } finally {
-        commit('LOGOUT')
+        commit('CLEAR_AUTH')
       }
     },
     
     async checkAuth({ commit, state }) {
-      const token = localStorage.getItem('token')
-      const user = JSON.parse(localStorage.getItem('user') || 'null')
+      if (!state.token) {
+        return false
+      }
       
-      if (token && user) {
-        // 設置 axios 默認 headers
-        axios.defaults.headers.common['Authorization'] = `Token ${token}`
-        
-        try {
-          // 驗證 token 是否有效
-          const response = await axios.get('/api/users/current-user/')
-          commit('SET_TOKEN', token)
-          commit('SET_USER', response.data)
-        } catch (error) {
-          // token 無效，清除所有狀態
-          commit('LOGOUT')
-        }
-      } else {
-        // 如果沒有 token 但狀態中仍有用戶，則清除
-        if (state.isAuthenticated) {
-          commit('LOGOUT')
-        }
+      try {
+        const response = await axios.get('/api/users/current-user/')
+        commit('SET_USER', response.data)
+        return true
+      } catch (error) {
+        commit('CLEAR_AUTH')
+        return false
       }
     },
     
