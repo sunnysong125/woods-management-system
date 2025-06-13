@@ -86,7 +86,7 @@ frontend/dist/
 frontend/dist.zip
 
 # Package managers
-frontend/package-lock.json
+# frontend/package-lock.json  # 需要這個文件用於CI/CD緩存
 frontend/yarn.lock
 
 # Runtime data
